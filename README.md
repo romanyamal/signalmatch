@@ -14,6 +14,16 @@ Nothing here is scraped or reverse-engineered from a private API. It's built fro
 
 ---
 
+## Light and Dark mode UI
+
+![Dark mode start](DarkMode.png)
+![Light mode start](LightMode.png)
+
+## Example Conversion
+
+![dark mode example loaded](darkmodeExample.png)
+![light mode example loaded](lightModeExample.png)
+
 ## Features
 
 - **Searchable pedal-chain builder** for the Tonebridge side, with real per-category fields (0–10 sliders, ±12dB EQ bands, etc.) matching Tonebridge's actual UI.
