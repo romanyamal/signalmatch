@@ -177,35 +177,75 @@ function lookupModeledOn(name) {
    Guitar's own "Modeled on ___" copy, taken directly from Tonebridge's
    Change Amplifier / Change Cabinet / Mic Model screens. */
 const TONEBRIDGE_AMPS = [
-  { name: "American Acoustic", type: "acoustic", lineage: "Fender Acoustasonic Junior DSP" },
+  {
+    name: "American Acoustic",
+    type: "acoustic",
+    lineage: "Fender Acoustasonic Junior DSP",
+  },
   { name: "American Bass King", type: "bass", lineage: "Fender Bassman" },
   { name: "Ashedam ABM 900", type: "bass", lineage: "Ashdown ABM 900" },
   { name: "Trees Effect 1215", type: "bass", lineage: "Trace Elliot 1215" },
   { name: "Voltage VT Classic", type: "bass", lineage: "Ampeg SVT-CL" },
   { name: "Voltage VT Reissue", type: "bass", lineage: "Ampeg SVT-VR" },
   { name: "American Dual", type: "electric", lineage: "Fender Twin" },
-  { name: "American Rebel", type: "electric", lineage: "Fender Hot Rod Deluxe" },
-  { name: "Bogdan Xtreme 101", type: "electric", lineage: "Bogner Ecstasy 101B" },
+  {
+    name: "American Rebel",
+    type: "electric",
+    lineage: "Fender Hot Rod Deluxe",
+  },
+  {
+    name: "Bogdan Xtreme 101",
+    type: "electric",
+    lineage: "Bogner Ecstasy 101B",
+  },
   { name: "Badua SD30", type: "electric", lineage: "Budda SD30" },
   { name: "Colonel 900", type: "electric", lineage: "Marshall JCM900" },
-  { name: "Colonel Jump 75", type: "electric", lineage: "1975 Marshall Master Model JMP 2203 100w Lead" },
-  { name: "Colonel Plexi 50W", type: "electric", lineage: "Marshall JMP 50W Lead" },
+  {
+    name: "Colonel Jump 75",
+    type: "electric",
+    lineage: "1975 Marshall Master Model JMP 2203 100w Lead",
+  },
+  {
+    name: "Colonel Plexi 50W",
+    type: "electric",
+    lineage: "Marshall JMP 50W Lead",
+  },
   { name: "Colonel Vintage", type: "electric", lineage: "Marshall JTM45" },
   { name: "London Century", type: "electric", lineage: "Hiwat Custom 100" },
   { name: "Meteor", type: "electric", lineage: "ENGL Fireball E625" },
-  { name: "Sultan Rack 88", type: "electric", lineage: "Soldano X88 preamp / Mesa Boogie 20/20 power module" },
+  {
+    name: "Sultan Rack 88",
+    type: "electric",
+    lineage: "Soldano X88 preamp / Mesa Boogie 20/20 power module",
+  },
   { name: "Talon Blues 5", type: "electric", lineage: "Lab Series L5" },
-  { name: "Taos .50 Cal", type: "electric", lineage: "Mesa Studio .50 Caliber" },
+  {
+    name: "Taos .50 Cal",
+    type: "electric",
+    lineage: "Mesa Studio .50 Caliber",
+  },
   { name: "Taos C+", type: "electric", lineage: "Mesa Boogie Mark IIC+" },
-  { name: "Taos Rectifier", type: "electric", lineage: "Mesa Boogie Dual Rectifier" },
+  {
+    name: "Taos Rectifier",
+    type: "electric",
+    lineage: "Mesa Boogie Dual Rectifier",
+  },
   { name: "Teavoy 3120", type: "electric", lineage: "Peavey 3120" },
   { name: "Teavoy 6505+", type: "electric", lineage: "Peavey 6505+" },
   { name: "Teavoy 6534+", type: "electric", lineage: "Peavey 6534+" },
   { name: "Teavoy Classic 30", type: "electric", lineage: "Peavey Classic 30" },
   { name: "Teavoy ValveKing", type: "electric", lineage: "Peavey ValveKing" },
-  { name: "Torgen Hot Mod Baby Blues", type: "electric", lineage: "Fargen Hot Mod (Fender Blues Jr-based)" },
+  {
+    name: "Torgen Hot Mod Baby Blues",
+    type: "electric",
+    lineage: "Fargen Hot Mod (Fender Blues Jr-based)",
+  },
   { name: "Torgen Olde 800", type: "electric", lineage: "Fargen Olde 800" },
-  { name: "Torgen Super Collider", type: "electric", lineage: "Fargen Super Collider" },
+  {
+    name: "Torgen Super Collider",
+    type: "electric",
+    lineage: "Fargen Super Collider",
+  },
   { name: "Vintage Brit", type: "electric", lineage: "VOX AC30" },
 ];
 function lookupAmpLineage(name) {
@@ -213,33 +253,101 @@ function lookupAmpLineage(name) {
 }
 
 const TONEBRIDGE_CABS = [
-  { name: "2x8 American Acoustic", type: "acoustic", lineage: "Fender Special Design 2x8 + tweeter" },
-  { name: "4x10 American Bass King", type: "bass", lineage: "Jensen-loaded 4x10 bass cab" },
-  { name: "8x10 Ashedam ABM-810", type: "bass", lineage: "8x10 British bass cab" },
-  { name: "1x15 Trees Effect", type: "bass", lineage: "Celestion-loaded 1x15 bass cab + horn" },
+  {
+    name: "2x8 American Acoustic",
+    type: "acoustic",
+    lineage: "Fender Special Design 2x8 + tweeter",
+  },
+  {
+    name: "4x10 American Bass King",
+    type: "bass",
+    lineage: "Jensen-loaded 4x10 bass cab",
+  },
+  {
+    name: "8x10 Ashedam ABM-810",
+    type: "bass",
+    lineage: "8x10 British bass cab",
+  },
+  {
+    name: "1x15 Trees Effect",
+    type: "bass",
+    lineage: "Celestion-loaded 1x15 bass cab + horn",
+  },
   { name: "8x10 Voltage VT Classic", type: "bass", lineage: "8x10 bass cab" },
-  { name: "2x12 American Dual", type: "electric", lineage: "Jensen-loaded 2x12" },
-  { name: "1x12 American Rebel", type: "electric", lineage: "Eminence-loaded 1x12" },
+  {
+    name: "2x12 American Dual",
+    type: "electric",
+    lineage: "Jensen-loaded 2x12",
+  },
+  {
+    name: "1x12 American Rebel",
+    type: "electric",
+    lineage: "Eminence-loaded 1x12",
+  },
   { name: "4x12 Bogdan", type: "electric", lineage: "4x12" },
-  { name: "1x12 Badua SD30", type: "electric", lineage: "Phat speaker-loaded 1x12" },
+  {
+    name: "1x12 Badua SD30",
+    type: "electric",
+    lineage: "Phat speaker-loaded 1x12",
+  },
   { name: "4x12 Colonel 900", type: "electric", lineage: "British 4x12" },
   { name: "1x12 Colonel Vintage", type: "electric", lineage: "British 1x12" },
-  { name: "4x10 Colonel Vintage", type: "electric", lineage: "Celestion-loaded 4x10" },
-  { name: "4x12 London Century", type: "electric", lineage: "FANE-loaded 4x12" },
+  {
+    name: "4x10 Colonel Vintage",
+    type: "electric",
+    lineage: "Celestion-loaded 4x10",
+  },
+  {
+    name: "4x12 London Century",
+    type: "electric",
+    lineage: "FANE-loaded 4x12",
+  },
   { name: "4x12 Meteor", type: "electric", lineage: "Celestion-loaded 4x12" },
   { name: "4x12 Sultan", type: "electric", lineage: "4x12" },
-  { name: "2x12 Talon Ceramic", type: "electric", lineage: "CTS ceramic-loaded 2x12" },
+  {
+    name: "2x12 Talon Ceramic",
+    type: "electric",
+    lineage: "CTS ceramic-loaded 2x12",
+  },
   { name: "2x12 Talon Blues", type: "electric", lineage: "2x12" },
   { name: "1x10 Taos", type: "electric", lineage: "1x10" },
-  { name: "4x12 Taos Rectifier", type: "electric", lineage: "Vintage 30-loaded 4x12" },
-  { name: "4x12 Teavoy 6505+", type: "electric", lineage: "Sheffield-loaded 4x12" },
-  { name: "1x12 Teavoy Classic 30", type: "electric", lineage: "Blue Marvel-loaded 1x12" },
+  {
+    name: "4x12 Taos Rectifier",
+    type: "electric",
+    lineage: "Vintage 30-loaded 4x12",
+  },
+  {
+    name: "4x12 Teavoy 6505+",
+    type: "electric",
+    lineage: "Sheffield-loaded 4x12",
+  },
+  {
+    name: "1x12 Teavoy Classic 30",
+    type: "electric",
+    lineage: "Blue Marvel-loaded 1x12",
+  },
   { name: "1x12 Teavoy ValveKing", type: "electric", lineage: "1x12" },
   { name: "4x12 Teavoy ValveKing", type: "electric", lineage: "4x12" },
-  { name: "1x12 Torgen Baby Blues", type: "electric", lineage: "Celestion V30-loaded 1x12" },
-  { name: "2x12 Torgen Olde 800", type: "electric", lineage: "WGS-loaded 2x12" },
-  { name: "2x12 Torgen Super Collider", type: "electric", lineage: "Jensen-loaded 2x12" },
-  { name: "2x12 Vintage Brit", type: "electric", lineage: "Celestion G12-loaded 2x12" },
+  {
+    name: "1x12 Torgen Baby Blues",
+    type: "electric",
+    lineage: "Celestion V30-loaded 1x12",
+  },
+  {
+    name: "2x12 Torgen Olde 800",
+    type: "electric",
+    lineage: "WGS-loaded 2x12",
+  },
+  {
+    name: "2x12 Torgen Super Collider",
+    type: "electric",
+    lineage: "Jensen-loaded 2x12",
+  },
+  {
+    name: "2x12 Vintage Brit",
+    type: "electric",
+    lineage: "Celestion G12-loaded 2x12",
+  },
 ];
 
 const TONEBRIDGE_MICS = [
@@ -945,6 +1053,13 @@ const CATEGORIES = {
         step: 0.1,
         def: 5,
       },
+      {
+        key: "space",
+        label: "Space (Echology only)",
+        type: "select",
+        options: ["None", "Hall", "Room", "Plate", "Spring"],
+        def: "None",
+      },
     ],
   },
   REVERB: {
@@ -1250,7 +1365,7 @@ function buildExampleChain() {
       id: uid(),
       category: "NOISE_GATE",
       name: "Noise Gate",
-      values: { threshold: 3.5, decay: 2.0 },
+      values: { power: true, threshold: 3.5, decay: 2.0 },
     },
     {
       id: uid(),
@@ -1273,7 +1388,13 @@ function buildExampleChain() {
       id: uid(),
       category: "DELAY",
       name: "Echology",
-      values: { type: "Digital", effectLevel: 1.5, time: 0.9, color: 10.0 },
+      values: {
+        type: "Digital",
+        effectLevel: 1.5,
+        time: 0.9,
+        color: 10.0,
+        space: "Hall",
+      },
     },
     {
       id: uid(),
@@ -1507,7 +1628,13 @@ function computeBaseline(chain, guitar, position) {
         break;
       }
       case "DELAY": {
-        const ms = Math.round((v.time || 0) * 1000);
+        const rawMs = Math.round((v.time || 0) * 1000);
+        const timeRange = rangeFor("Time");
+        const ms = Math.max(timeRange.min, Math.min(timeRange.max, rawMs));
+        const clampNote =
+          rawMs > timeRange.max
+            ? ` Tonebridge's time (${rawMs}ms) exceeds Prime's ${timeRange.max}ms max — clamped down.`
+            : "";
         items.push({
           id: pedal.id,
           stage: "DELAY",
@@ -1515,11 +1642,29 @@ function computeBaseline(chain, guitar, position) {
           originName: pedal.name || "Delay",
           params: {
             Level: pct(v.effectLevel),
-            Feedback: pct(v.color),
+            Feedback: 30,
             Time: ms,
           },
-          note: "Feedback approximated from Tonebridge's Color knob (no direct repeats control there).",
+          note:
+            "Feedback defaulted to a conservative single-repeat value (30%) — Tonebridge's Color knob is a tone/brightness control on the real hardware, not repeats, so mapping it 1:1 to Feedback would let a maxed-out Color produce a runaway 100% self-oscillating delay. No Tonebridge equivalent for repeats exists here." +
+            clampNote,
         });
+        if (v.space && v.space !== "None") {
+          const type = REVERB_PRIME_TYPES.includes(v.space) ? v.space : "Room";
+          items.push({
+            id: pedal.id + "-rv",
+            stage: "REVERB",
+            type,
+            originName: (pedal.name || "Delay") + " (reverb side)",
+            params: {
+              "Pre Delay": 5,
+              Level: pct(v.effectLevel),
+              Decay: 50,
+              Tone: pct(v.color),
+            },
+            note: `${pedal.name || "This pedal"} is a reverb/delay combo (e.g. Echology) — this is its Space (${v.space}) half, split into Prime's separate Reverb stage since Prime has no combined reverb+delay block. Level from Effect Level; Tone from Color, since Color is a tone/brightness knob on the real hardware — a much closer match to Prime's Tone than to Decay or Feedback. Decay defaulted to 50 (no Tonebridge equivalent).`,
+          });
+        }
         break;
       }
       case "REVERB": {
@@ -2066,7 +2211,7 @@ function useDragReorder(list, setList) {
   const blockDrag = useRef(false);
   const onMouseDown = () => (e) => {
     blockDrag.current = !!e.target.closest(
-      "input, select, textarea, button, label"
+      "input, select, textarea, button, label",
     );
   };
   const onDragStart = (i) => (e) => {
