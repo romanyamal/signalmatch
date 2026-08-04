@@ -1056,6 +1056,15 @@ const CATEGORIES = {
         def: 5,
       },
       {
+        key: "feedback",
+        label: "Feedback / Repeats",
+        type: "slider",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        def: 3,
+      },
+      {
         key: "space",
         label: "Space (Echology only)",
         type: "select",
@@ -1395,6 +1404,7 @@ function buildExampleChain() {
         effectLevel: 1.5,
         time: 0.9,
         color: 10.0,
+        feedback: 3,
         space: "Hall",
       },
     },
@@ -1546,13 +1556,24 @@ function computeBaseline(chain, guitar, position) {
         break;
       }
       case "AMP": {
+        const resonanceNudge = Math.round((v.resonance || 0) * 2);
+        const textureNudge = Math.round((v.texture || 0) * 1.5);
         const eq = {
           gain: pct(v.drive),
-          bass: pct(v.bass),
+          bass: clamp(pct(v.bass) + resonanceNudge),
           mid: pct(v.mid),
           treble: pct(v.treble),
-          presence: pct(v.presence),
+          presence: clamp(pct(v.presence) + textureNudge),
         };
+        const eqFoldNotes = [];
+        if (resonanceNudge)
+          eqFoldNotes.push(
+            `Resonance (${v.resonance}) has no Prime equivalent — folded into Bass as a +${resonanceNudge} nudge instead of being dropped.`,
+          );
+        if (textureNudge)
+          eqFoldNotes.push(
+            `Texture (${v.texture}) has no Prime equivalent — folded into Presence as a +${textureNudge} nudge instead of being dropped.`,
+          );
         const modelLineage = lookupAmpLineage(v.model);
         const lineage = modelLineage || lookupModeledOn(pedal.name);
         const { amp, reason } = matchAmp(lineage, tierFromGain(v.drive));
@@ -1571,7 +1592,10 @@ function computeBaseline(chain, guitar, position) {
             Presence: eq.presence,
             Master: pct(v.volume),
           },
-          note: (lineage ? `Modeled on ${lineage}. ` : "") + reason,
+          note:
+            (lineage ? `Modeled on ${lineage}. ` : "") +
+            reason +
+            (eqFoldNotes.length ? " " + eqFoldNotes.join(" ") : ""),
         });
         ampItemId = pedal.id;
         ampEq = eq;
@@ -1644,11 +1668,11 @@ function computeBaseline(chain, guitar, position) {
           originName: pedal.name || "Delay",
           params: {
             Level: pct(v.effectLevel),
-            Feedback: 30,
+            Feedback: pct(v.feedback),
             Time: ms,
           },
           note:
-            "Feedback defaulted to a conservative single-repeat value (30%) — Tonebridge's Color knob is a tone/brightness control on the real hardware, not repeats, so mapping it 1:1 to Feedback would let a maxed-out Color produce a runaway 100% self-oscillating delay. No Tonebridge equivalent for repeats exists here." +
+            "If your pedal has a real Feedback/repeats knob (e.g. D-Delay's F.BACK), dial it in here directly. Echology has no such control on the real hardware — its Feedback stays at the default." +
             clampNote,
         });
         if (v.space && v.space !== "None") {
