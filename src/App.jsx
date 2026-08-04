@@ -605,6 +605,8 @@ const PRIME_CABS = [
 ];
 
 const AMP_KEYWORD_MAP = [
+  { kw: "svt", families: ["US Bass"] },
+  { kw: "bassman", families: ["US Bass"] },
   { kw: "peavey", families: ["PV5050"] },
   { kw: "evh", families: ["EV5050"] },
   { kw: "fender", families: ["US DLX", "US TW", "US Bass", "US Blues"] },
