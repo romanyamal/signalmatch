@@ -173,6 +173,86 @@ function lookupModeledOn(name) {
   return TONEBRIDGE_MODELED_ON[name.trim().toLowerCase()] || null;
 }
 
+/* Tonebridge's own amp/cabinet/mic catalogs — real hardware names + Ultimate
+   Guitar's own "Modeled on ___" copy, taken directly from Tonebridge's
+   Change Amplifier / Change Cabinet / Mic Model screens. */
+const TONEBRIDGE_AMPS = [
+  { name: "American Acoustic", type: "acoustic", lineage: "Fender Acoustasonic Junior DSP" },
+  { name: "American Bass King", type: "bass", lineage: "Fender Bassman" },
+  { name: "Ashedam ABM 900", type: "bass", lineage: "Ashdown ABM 900" },
+  { name: "Trees Effect 1215", type: "bass", lineage: "Trace Elliot 1215" },
+  { name: "Voltage VT Classic", type: "bass", lineage: "Ampeg SVT-CL" },
+  { name: "Voltage VT Reissue", type: "bass", lineage: "Ampeg SVT-VR" },
+  { name: "American Dual", type: "electric", lineage: "Fender Twin" },
+  { name: "American Rebel", type: "electric", lineage: "Fender Hot Rod Deluxe" },
+  { name: "Bogdan Xtreme 101", type: "electric", lineage: "Bogner Ecstasy 101B" },
+  { name: "Badua SD30", type: "electric", lineage: "Budda SD30" },
+  { name: "Colonel 900", type: "electric", lineage: "Marshall JCM900" },
+  { name: "Colonel Jump 75", type: "electric", lineage: "1975 Marshall Master Model JMP 2203 100w Lead" },
+  { name: "Colonel Plexi 50W", type: "electric", lineage: "Marshall JMP 50W Lead" },
+  { name: "Colonel Vintage", type: "electric", lineage: "Marshall JTM45" },
+  { name: "London Century", type: "electric", lineage: "Hiwat Custom 100" },
+  { name: "Meteor", type: "electric", lineage: "ENGL Fireball E625" },
+  { name: "Sultan Rack 88", type: "electric", lineage: "Soldano X88 preamp / Mesa Boogie 20/20 power module" },
+  { name: "Talon Blues 5", type: "electric", lineage: "Lab Series L5" },
+  { name: "Taos .50 Cal", type: "electric", lineage: "Mesa Studio .50 Caliber" },
+  { name: "Taos C+", type: "electric", lineage: "Mesa Boogie Mark IIC+" },
+  { name: "Taos Rectifier", type: "electric", lineage: "Mesa Boogie Dual Rectifier" },
+  { name: "Teavoy 3120", type: "electric", lineage: "Peavey 3120" },
+  { name: "Teavoy 6505+", type: "electric", lineage: "Peavey 6505+" },
+  { name: "Teavoy 6534+", type: "electric", lineage: "Peavey 6534+" },
+  { name: "Teavoy Classic 30", type: "electric", lineage: "Peavey Classic 30" },
+  { name: "Teavoy ValveKing", type: "electric", lineage: "Peavey ValveKing" },
+  { name: "Torgen Hot Mod Baby Blues", type: "electric", lineage: "Fargen Hot Mod (Fender Blues Jr-based)" },
+  { name: "Torgen Olde 800", type: "electric", lineage: "Fargen Olde 800" },
+  { name: "Torgen Super Collider", type: "electric", lineage: "Fargen Super Collider" },
+  { name: "Vintage Brit", type: "electric", lineage: "VOX AC30" },
+];
+function lookupAmpLineage(name) {
+  return TONEBRIDGE_AMPS.find((a) => a.name === name)?.lineage || null;
+}
+
+const TONEBRIDGE_CABS = [
+  { name: "2x8 American Acoustic", type: "acoustic", lineage: "Fender Special Design 2x8 + tweeter" },
+  { name: "4x10 American Bass King", type: "bass", lineage: "Jensen-loaded 4x10 bass cab" },
+  { name: "8x10 Ashedam ABM-810", type: "bass", lineage: "8x10 British bass cab" },
+  { name: "1x15 Trees Effect", type: "bass", lineage: "Celestion-loaded 1x15 bass cab + horn" },
+  { name: "8x10 Voltage VT Classic", type: "bass", lineage: "8x10 bass cab" },
+  { name: "2x12 American Dual", type: "electric", lineage: "Jensen-loaded 2x12" },
+  { name: "1x12 American Rebel", type: "electric", lineage: "Eminence-loaded 1x12" },
+  { name: "4x12 Bogdan", type: "electric", lineage: "4x12" },
+  { name: "1x12 Badua SD30", type: "electric", lineage: "Phat speaker-loaded 1x12" },
+  { name: "4x12 Colonel 900", type: "electric", lineage: "British 4x12" },
+  { name: "1x12 Colonel Vintage", type: "electric", lineage: "British 1x12" },
+  { name: "4x10 Colonel Vintage", type: "electric", lineage: "Celestion-loaded 4x10" },
+  { name: "4x12 London Century", type: "electric", lineage: "FANE-loaded 4x12" },
+  { name: "4x12 Meteor", type: "electric", lineage: "Celestion-loaded 4x12" },
+  { name: "4x12 Sultan", type: "electric", lineage: "4x12" },
+  { name: "2x12 Talon Ceramic", type: "electric", lineage: "CTS ceramic-loaded 2x12" },
+  { name: "2x12 Talon Blues", type: "electric", lineage: "2x12" },
+  { name: "1x10 Taos", type: "electric", lineage: "1x10" },
+  { name: "4x12 Taos Rectifier", type: "electric", lineage: "Vintage 30-loaded 4x12" },
+  { name: "4x12 Teavoy 6505+", type: "electric", lineage: "Sheffield-loaded 4x12" },
+  { name: "1x12 Teavoy Classic 30", type: "electric", lineage: "Blue Marvel-loaded 1x12" },
+  { name: "1x12 Teavoy ValveKing", type: "electric", lineage: "1x12" },
+  { name: "4x12 Teavoy ValveKing", type: "electric", lineage: "4x12" },
+  { name: "1x12 Torgen Baby Blues", type: "electric", lineage: "Celestion V30-loaded 1x12" },
+  { name: "2x12 Torgen Olde 800", type: "electric", lineage: "WGS-loaded 2x12" },
+  { name: "2x12 Torgen Super Collider", type: "electric", lineage: "Jensen-loaded 2x12" },
+  { name: "2x12 Vintage Brit", type: "electric", lineage: "Celestion G12-loaded 2x12" },
+];
+
+const TONEBRIDGE_MICS = [
+  { name: "KGB 414", lineage: "AKG C414" },
+  { name: "Technique 4033", lineage: "Audio-Technica AT4033" },
+  { name: "KGB 451", lineage: "AKG C451" },
+  { name: "Wideload 421", lineage: "Sennheiser MD 421 II" },
+  { name: "Broadcast 20", lineage: "Electro-Voice RE20" },
+  { name: "Workhorse 57", lineage: "Shure SM57" },
+  { name: "Workhorse 58", lineage: "Shure SM58" },
+  { name: "Germann 87", lineage: "Neumann U 87" },
+];
+
 /* Prime P1 amp list — tier: CL/OD/DS. lineage only set where confident. */
 const PRIME_AMPS = [
   {
@@ -432,6 +512,14 @@ const AMP_KEYWORD_MAP = [
   { kw: "hughes", families: ["HWT"] },
   { kw: "koch", families: ["Koche"] },
   { kw: "bogner", families: ["Hugen"] },
+  { kw: "vox", families: ["UK 30"] },
+  { kw: "hiwat", families: ["HWT"] },
+  { kw: "engl", families: ["Hugen"] },
+  { kw: "soldano", families: ["Hugen"] },
+  { kw: "budda", families: ["Dr Zee"] },
+  { kw: "fargen", families: ["Dr Zee"] },
+  { kw: "trace elliot", families: ["US Bass"] },
+  { kw: "ashdown", families: ["US Bass"] },
 ];
 const OD_KEYWORD_MAP = [
   { kw: "tube screamer", name: "808" },
@@ -662,6 +750,13 @@ const CATEGORIES = {
     stage: "AMP",
     fields: [
       {
+        key: "model",
+        label: "Amp Model",
+        type: "select",
+        options: TONEBRIDGE_AMPS.map((a) => a.name),
+        def: "American Dual",
+      },
+      {
         key: "volume",
         label: "Volume",
         type: "slider",
@@ -748,8 +843,21 @@ const CATEGORIES = {
     label: "Cabinet + Mic",
     stage: "CAB",
     fields: [
+      {
+        key: "model",
+        label: "Cabinet Model",
+        type: "select",
+        options: TONEBRIDGE_CABS.map((c) => c.name),
+        def: "2x12 American Dual",
+      },
       { key: "power", label: "Power", type: "toggle", def: true },
-      { key: "micModel", label: "Mic Model", type: "text", def: "" },
+      {
+        key: "micModel",
+        label: "Mic Model",
+        type: "select",
+        options: TONEBRIDGE_MICS.map((m) => m.name),
+        def: "Workhorse 57",
+      },
       {
         key: "micPosition",
         label: "Mic Position",
@@ -1147,8 +1255,9 @@ function buildExampleChain() {
     {
       id: uid(),
       category: "AMP",
-      name: "Teavoy ValveKing",
+      name: "",
       values: {
+        model: "Teavoy ValveKing",
         volume: 7.5,
         drive: 3.4,
         presence: 6.4,
@@ -1169,8 +1278,13 @@ function buildExampleChain() {
     {
       id: uid(),
       category: "CAB",
-      name: "4x12 Teavoy ValveKing",
-      values: { power: true, micModel: "Workhorse 57", micPosition: "On Axis" },
+      name: "",
+      values: {
+        model: "4x12 Teavoy ValveKing",
+        power: true,
+        micModel: "Workhorse 57",
+        micPosition: "On Axis",
+      },
     },
     {
       id: uid(),
@@ -1316,13 +1430,16 @@ function computeBaseline(chain, guitar, position) {
           treble: pct(v.treble),
           presence: pct(v.presence),
         };
-        const lineage = lookupModeledOn(pedal.name);
+        const modelLineage = lookupAmpLineage(v.model);
+        const lineage = modelLineage || lookupModeledOn(pedal.name);
         const { amp, reason } = matchAmp(lineage, tierFromGain(v.drive));
         items.push({
           id: pedal.id,
           stage: "AMP",
           type: amp.name,
-          originName: pedal.name || "Amp",
+          originName: pedal.name
+            ? `${pedal.name} (${v.model})`
+            : v.model || "Amp",
           params: {
             Gain: eq.gain,
             Bass: eq.bass,
@@ -1361,16 +1478,22 @@ function computeBaseline(chain, guitar, position) {
         }
         break;
       }
-      case "CAB":
+      case "CAB": {
+        const cabInfo = TONEBRIDGE_CABS.find((c) => c.name === v.model);
+        const micInfo = TONEBRIDGE_MICS.find((m) => m.name === v.micModel);
         items.push({
           id: pedal.id,
           stage: "CAB",
           type: null,
           isInfo: true,
-          originName: pedal.name || "Cabinet + Mic",
-          note: `Mic settings (${v.micModel || "—"}, ${v.micPosition}) don't carry over — Prime's Cab stage has no mic modeling.`,
+          originName: pedal.name || v.model || "Cabinet + Mic",
+          note:
+            `${v.model || "Cabinet"}${cabInfo ? ` (${cabInfo.lineage})` : ""}, mic'd with ${v.micModel || "—"}` +
+            `${micInfo ? ` (${micInfo.lineage})` : ""} at ${v.micPosition} — none of this carries to Prime; ` +
+            `its Cab stage has no mic modeling and the cab choice comes from the matched amp instead.`,
         });
         break;
+      }
       case "MOD": {
         const { params, note } = mapModFields(v.type, v);
         items.push({
