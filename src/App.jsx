@@ -18,6 +18,7 @@ import {
   Moon,
   Download,
   Upload,
+  ArrowUpDown,
 } from "lucide-react";
 
 /* ---------------------------------------------------------------------- */
@@ -1812,6 +1813,32 @@ function mergeOutputs(prevItems, computed) {
   return result;
 }
 
+function deriveStageOrderFromChain(chain) {
+  const seen = [];
+  const addStage = (s) => {
+    if (s && !seen.includes(s)) seen.push(s);
+  };
+  chain.forEach((pedal) => {
+    if (pedal.category === "EQ") return; // folds into the amp, not its own ordered stage
+    const cat = CATEGORIES[pedal.category];
+    if (!cat) return;
+    addStage(cat.stage);
+    if (pedal.category === "AMP") {
+      addStage("CAB");
+      if ((pedal.values.reverb || 0) > 0) addStage("REVERB");
+    }
+    if (
+      pedal.category === "DELAY" &&
+      pedal.values.space &&
+      pedal.values.space !== "None"
+    ) {
+      addStage("REVERB");
+    }
+  });
+  DEFAULT_STAGE_ORDER.forEach(addStage);
+  return seen;
+}
+
 /* ---------------------------------------------------------------------- */
 /* UI primitives                                                          */
 /* ---------------------------------------------------------------------- */
@@ -2673,11 +2700,21 @@ export default function PrimeP1ToneConverter() {
 
           {/* RIGHT */}
           <div>
-            <div
-              className="font-mono text-[11px] uppercase tracking-widest mb-3"
-              style={{ color: c.textMuted }}
-            >
-              Prime P1 chain (drag stages to reorder)
+            <div className="flex items-center justify-between mb-3">
+              <div
+                className="font-mono text-[11px] uppercase tracking-widest"
+                style={{ color: c.textMuted }}
+              >
+                Prime P1 chain (drag stages to reorder)
+              </div>
+              <button
+                onClick={() => setStageOrder(deriveStageOrderFromChain(chain))}
+                title="Prime's stage order defaults to a fixed Dyna→OD→Amp→Cab→Mod→Delay→Reverb sequence regardless of how your Tonebridge pedals are arranged. Click to re-derive it from your actual chain order instead."
+                className="flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded border"
+                style={{ borderColor: c.border, color: c.textMuted }}
+              >
+                <ArrowUpDown size={12} /> Match my chain order
+              </button>
             </div>
             <div className="space-y-3">
               {stageOrder.map((stageKey, i) => {
