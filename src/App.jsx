@@ -86,7 +86,7 @@ const DYNA_PRIME_TYPES = {
   Comp: { fields: ["Attack", "Threshold", "Ratio", "Level"], confirmed: true },
   "Touch Wah": { fields: ["Attack", "Sens", "Peak", "Level"], confirmed: true },
   "Auto Wah": { fields: ["Rate", "Range", "Peak", "Level"], confirmed: true },
-  NG: { fields: ["Threshold", "Decay"], confirmed: false },
+  NG: { fields: ["Threshold"], confirmed: true },
 };
 const MOD_PRIME_TYPES = {
   Phaser: { fields: ["Rate", "Level", "Depth"], confirmed: true },
@@ -161,6 +161,12 @@ const TONEBRIDGE_MODELED_ON = {
   "thrasher pre": "TC Electronic Integrated Preamp",
   "tonemime bass": "Tech21 SansAmp Bass Driver DI",
   "tonemime gt": "Tech21 SansAmp GT2",
+  "rocketon cottonmouth fuzz": "Rocktron Cottonmouth Fuzz",
+  "rocketon hush noise reduction": "Rocktron HUSH",
+  "rocketon metal planet distortion": "Rocktron Metal Planet",
+  "rocketon zombie rectified distortion": "Rocktron Zombie",
+  "somnic edgy g&g overdrive": "Sonic Edge J&J Overdrive",
+  "somnic edgy tumbleneed": "The Sonic Edge Tumbleweed",
 };
 function lookupModeledOn(name) {
   if (!name) return null;
@@ -1270,8 +1276,8 @@ function computeBaseline(chain, guitar, position) {
           stage: "DYNA",
           type: "NG",
           originName: pedal.name || "Noise Gate",
-          params: { Threshold: pct(v.threshold), Decay: pct(v.decay) },
-          note: "Prime's NG field names aren't confirmed by screenshot yet — best estimate.",
+          params: { Threshold: pct(v.threshold) },
+          note: "Prime's NG only has a Threshold control (confirmed by screenshot) — Tonebridge's Decay has no Prime equivalent.",
         });
         break;
       case "COMPRESSOR":
@@ -1515,6 +1521,52 @@ function mergeOutputs(prevItems, computed) {
 /* ---------------------------------------------------------------------- */
 /* UI primitives                                                          */
 /* ---------------------------------------------------------------------- */
+function NumberDisplay({ value, min, max, step, onChange, c, unit }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => {
+    if (!editing) setDraft(String(value));
+  }, [value, editing]);
+  const commit = () => {
+    let n = parseFloat(draft);
+    if (isNaN(n)) n = value;
+    n = Math.max(min, Math.min(max, n));
+    onChange(n);
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onFocus={(e) => e.target.select()}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") setEditing(false);
+        }}
+        style={{ background: c.bg, borderColor: c.accent, color: c.text }}
+        className="w-14 text-right border rounded px-1 py-0.5 text-[10px] font-mono focus:outline-none"
+      />
+    );
+  }
+  return (
+    <span
+      onClick={() => setEditing(true)}
+      style={{ color: c.textDim }}
+      className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+    >
+      {value}
+      {unit || ""}
+    </span>
+  );
+}
+
 function Field({ field, value, onChange, c }) {
   if (field.type === "slider") {
     return (
@@ -1524,7 +1576,14 @@ function Field({ field, value, onChange, c }) {
           style={{ color: c.textMuted }}
         >
           <span>{field.label}</span>
-          <span style={{ color: c.textDim }}>{value}</span>
+          <NumberDisplay
+            value={value}
+            min={field.min}
+            max={field.max}
+            step={field.step}
+            onChange={onChange}
+            c={c}
+          />
         </div>
         <input
           type="range"
@@ -1819,10 +1878,15 @@ function OutputItemCard({ item, onChange, onRemove, collapsed, onToggle, c }) {
                     style={{ color: c.textFaint }}
                   >
                     <span>{f}</span>
-                    <span style={{ color: c.textMuted }}>
-                      {val}
-                      {r.unit}
-                    </span>
+                    <NumberDisplay
+                      value={val}
+                      min={r.min}
+                      max={r.max}
+                      step={r.step}
+                      unit={r.unit}
+                      onChange={(n) => setParam(f, n)}
+                      c={c}
+                    />
                   </div>
                   <input
                     type="range"
@@ -1876,7 +1940,17 @@ function OutputItemCard({ item, onChange, onRemove, collapsed, onToggle, c }) {
 
 function useDragReorder(list, setList) {
   const dragIdx = useRef(null);
+  const blockDrag = useRef(false);
+  const onMouseDown = () => (e) => {
+    blockDrag.current = !!e.target.closest(
+      "input, select, textarea, button, label"
+    );
+  };
   const onDragStart = (i) => (e) => {
+    if (blockDrag.current) {
+      e.preventDefault();
+      return;
+    }
     dragIdx.current = i;
     e.dataTransfer.effectAllowed = "move";
   };
@@ -1893,7 +1967,7 @@ function useDragReorder(list, setList) {
     setList(next);
     dragIdx.current = null;
   };
-  return { onDragStart, onDragOver, onDrop };
+  return { onDragStart, onDragOver, onDrop, onMouseDown };
 }
 
 function AddStageItemButton({ stage, onAdd, c }) {
@@ -2172,6 +2246,7 @@ export default function PrimeP1ToneConverter() {
                     })
                   }
                   dragProps={{
+                    onMouseDown: chainDrag.onMouseDown(i),
                     onDragStart: chainDrag.onDragStart(i),
                     onDragOver: chainDrag.onDragOver(i),
                     onDrop: chainDrag.onDrop(i),
@@ -2319,6 +2394,7 @@ export default function PrimeP1ToneConverter() {
                   <div
                     key={stageKey}
                     draggable
+                    onMouseDown={stageDrag.onMouseDown(i)}
                     onDragStart={stageDrag.onDragStart(i)}
                     onDragOver={stageDrag.onDragOver(i)}
                     onDrop={stageDrag.onDrop(i)}
