@@ -608,6 +608,8 @@ const PRIME_CABS = [
 const AMP_KEYWORD_MAP = [
   { kw: "svt", families: ["US Bass"] },
   { kw: "bassman", families: ["US Bass"] },
+  { kw: "valveking", families: ["US Blues"] },
+  { kw: "classic 30", families: ["US Blues"] },
   { kw: "peavey", families: ["PV5050"] },
   { kw: "evh", families: ["EV5050"] },
   { kw: "fender", families: ["US DLX", "US TW", "US Bass", "US Blues"] },
@@ -1513,6 +1515,7 @@ function computeBaseline(chain, guitar, position) {
   const items = [];
   let ampEq = null;
   let ampItemId = null;
+  let standaloneCabInfo = null;
   const eqFolds = [];
 
   chain.forEach((pedal) => {
@@ -1629,17 +1632,13 @@ function computeBaseline(chain, guitar, position) {
       case "CAB": {
         const cabInfo = TONEBRIDGE_CABS.find((c) => c.name === v.model);
         const micInfo = TONEBRIDGE_MICS.find((m) => m.name === v.micModel);
-        items.push({
+        standaloneCabInfo = {
           id: pedal.id,
-          stage: "CAB",
-          type: null,
-          isInfo: true,
           originName: pedal.name || v.model || "Cabinet + Mic",
-          note:
-            `${v.model || "Cabinet"}${cabInfo ? ` (${cabInfo.lineage})` : ""}, mic'd with ${v.micModel || "—"}` +
-            `${micInfo ? ` (${micInfo.lineage})` : ""} at ${v.micPosition} — none of this carries to Prime; ` +
-            `its Cab stage has no mic modeling and the cab choice comes from the matched amp instead.`,
-        });
+          text:
+            `Your Tonebridge cab was ${v.model || "Cabinet"}${cabInfo ? ` (${cabInfo.lineage})` : ""}, mic'd with ${v.micModel || "—"}` +
+            `${micInfo ? ` (${micInfo.lineage})` : ""} at ${v.micPosition} — mic choice doesn't carry to Prime (its Cab stage has no mic modeling).`,
+        };
         break;
       }
       case "MOD": {
@@ -1726,6 +1725,8 @@ function computeBaseline(chain, guitar, position) {
     }
   });
 
+  if (chain.length === 0) return items;
+
   let baseEq = ampEq || {
     gain: 45,
     bass: 50,
@@ -1788,6 +1789,25 @@ function computeBaseline(chain, guitar, position) {
       params: {},
       note: reason,
     });
+  }
+  if (standaloneCabInfo) {
+    const cabItem = items.find((it) => it.stage === "CAB" && !it.isInfo);
+    if (cabItem) {
+      cabItem.note = cabItem.note
+        ? `${cabItem.note} ${standaloneCabInfo.text}`
+        : standaloneCabInfo.text;
+    } else {
+      // No amp/cab exists to attach this to (e.g. a Cabinet+Mic pedal with
+      // no Amp pedal anywhere in the chain) — fall back to its own card.
+      items.push({
+        id: standaloneCabInfo.id,
+        stage: "CAB",
+        type: null,
+        isInfo: true,
+        originName: standaloneCabInfo.originName,
+        note: standaloneCabInfo.text,
+      });
+    }
   }
   return items;
 }
@@ -2023,13 +2043,15 @@ function PedalCard({
   collapsed,
   onToggle,
   c,
+  isDragging,
 }) {
   const cat = CATEGORIES[pedal.category];
   return (
     <div
       draggable
       {...dragProps}
-      className="cursor-grab active:cursor-grabbing"
+      className="cursor-grab active:cursor-grabbing transition-opacity duration-150"
+      style={{ opacity: isDragging ? 0.4 : 1 }}
     >
       <CardShell
         c={c}
@@ -2101,19 +2123,40 @@ function OutputItemCard({ item, onChange, onRemove, collapsed, onToggle, c }) {
         collapsible={false}
         headerLeft={
           <span className="font-body text-sm font-medium">
-            {item.originName}
+            {item.originName}{" "}
+            <span
+              className="font-mono text-[10px] uppercase tracking-wide"
+              style={{ color: c.textFaint }}
+            >
+              (info only — not a Prime item)
+            </span>
           </span>
         }
         headerRight={
           <button
             onClick={() => onRemove(item.id)}
             style={{ color: c.textMuted }}
+            title="Remove this info note"
           >
             <X size={14} />
           </button>
         }
       >
-        <div />
+        {item.note && (
+          <div className="px-4 py-3 flex gap-1.5">
+            <Info
+              size={11}
+              className="shrink-0 mt-0.5"
+              style={{ color: c.textFaint }}
+            />
+            <p
+              className="font-body text-[11px] leading-relaxed"
+              style={{ color: c.textFaint }}
+            >
+              {item.note}
+            </p>
+          </div>
+        )}
       </CardShell>
     );
   }
@@ -2262,6 +2305,7 @@ function OutputItemCard({ item, onChange, onRemove, collapsed, onToggle, c }) {
 function useDragReorder(list, setList) {
   const dragIdx = useRef(null);
   const blockDrag = useRef(false);
+  const [draggingIndex, setDraggingIndex] = useState(null);
   const onMouseDown = () => (e) => {
     blockDrag.current = !!e.target.closest(
       "input, select, textarea, button, label",
@@ -2273,22 +2317,47 @@ function useDragReorder(list, setList) {
       return;
     }
     dragIdx.current = i;
+    setDraggingIndex(i);
     e.dataTransfer.effectAllowed = "move";
+    if (e.dataTransfer.setDragImage) {
+      const ghost = e.currentTarget.cloneNode(true);
+      ghost.style.position = "absolute";
+      ghost.style.top = "-9999px";
+      ghost.style.width = `${e.currentTarget.offsetWidth}px`;
+      ghost.style.opacity = "0.85";
+      document.body.appendChild(ghost);
+      e.dataTransfer.setDragImage(ghost, 20, 20);
+      setTimeout(() => document.body.removeChild(ghost), 0);
+    }
   };
-  const onDragOver = () => (e) => {
-    e.preventDefault();
-  };
-  const onDrop = (i) => (e) => {
+  const onDragOver = (i) => (e) => {
     e.preventDefault();
     const from = dragIdx.current;
     if (from === null || from === i) return;
     const next = [...list];
     const [moved] = next.splice(from, 1);
     next.splice(i, 0, moved);
+    dragIdx.current = i;
+    setDraggingIndex(i);
     setList(next);
-    dragIdx.current = null;
   };
-  return { onDragStart, onDragOver, onDrop, onMouseDown };
+  const onDrop = (e) => {
+    e.preventDefault();
+    dragIdx.current = null;
+    setDraggingIndex(null);
+  };
+  const onDragEnd = () => {
+    dragIdx.current = null;
+    setDraggingIndex(null);
+  };
+  return {
+    onDragStart,
+    onDragOver,
+    onDrop,
+    onMouseDown,
+    onDragEnd,
+    draggingIndex,
+  };
 }
 
 function AddStageItemButton({ stage, onAdd, c }) {
@@ -2340,6 +2409,8 @@ export default function PrimeP1ToneConverter() {
   const [guitarKey, setGuitarKey] = useState("telecaster");
   const [positionKey, setPositionKey] = useState("bridge");
   const [stageOrder, setStageOrder] = useState(DEFAULT_STAGE_ORDER);
+  const [prevStageOrder, setPrevStageOrder] = useState(null);
+  const [chainOrderMatched, setChainOrderMatched] = useState(false);
   const [collapsedIn, setCollapsedIn] = useState({});
   const [collapsedOut, setCollapsedOut] = useState({});
   const fileInputRef = useRef(null);
@@ -2542,13 +2613,25 @@ export default function PrimeP1ToneConverter() {
               >
                 Tonebridge chain
               </div>
-              <button
-                onClick={() => setChain(buildExampleChain())}
-                className="font-mono text-[10px] hover:underline"
-                style={{ color: c.accent }}
-              >
-                Load example
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setChain([]);
+                    setOutputItems([]);
+                  }}
+                  className="font-mono text-[10px] hover:underline"
+                  style={{ color: c.textMuted }}
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setChain(buildExampleChain())}
+                  className="font-mono text-[10px] hover:underline"
+                  style={{ color: c.accent }}
+                >
+                  Load example
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -2570,8 +2653,10 @@ export default function PrimeP1ToneConverter() {
                     onMouseDown: chainDrag.onMouseDown(i),
                     onDragStart: chainDrag.onDragStart(i),
                     onDragOver: chainDrag.onDragOver(i),
-                    onDrop: chainDrag.onDrop(i),
+                    onDrop: chainDrag.onDrop,
+                    onDragEnd: chainDrag.onDragEnd,
                   }}
+                  isDragging={chainDrag.draggingIndex === i}
                 />
               ))}
             </div>
@@ -2708,12 +2793,37 @@ export default function PrimeP1ToneConverter() {
                 Prime P1 chain (drag stages to reorder)
               </div>
               <button
-                onClick={() => setStageOrder(deriveStageOrderFromChain(chain))}
-                title="Prime's stage order defaults to a fixed Dyna→OD→Amp→Cab→Mod→Delay→Reverb sequence regardless of how your Tonebridge pedals are arranged. Click to re-derive it from your actual chain order instead."
+                onClick={() => {
+                  if (chainOrderMatched) {
+                    setStageOrder(prevStageOrder || DEFAULT_STAGE_ORDER);
+                    setPrevStageOrder(null);
+                    setChainOrderMatched(false);
+                  } else {
+                    setPrevStageOrder(stageOrder);
+                    setStageOrder(deriveStageOrderFromChain(chain));
+                    setChainOrderMatched(true);
+                  }
+                }}
+                title={
+                  chainOrderMatched
+                    ? "Revert to the stage order you had before matching."
+                    : "Prime's stage order defaults to a fixed Dyna→OD→Amp→Cab→Mod→Delay→Reverb sequence regardless of how your Tonebridge pedals are arranged. Click to re-derive it from your actual chain order instead."
+                }
                 className="flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded border"
-                style={{ borderColor: c.border, color: c.textMuted }}
+                style={
+                  chainOrderMatched
+                    ? {
+                        borderColor: c.accent,
+                        color: c.accent,
+                        background: c.panelAlt,
+                      }
+                    : { borderColor: c.border, color: c.textMuted }
+                }
               >
-                <ArrowUpDown size={12} /> Match my chain order
+                <ArrowUpDown size={12} />
+                {chainOrderMatched
+                  ? "Revert chain order"
+                  : "Match my chain order"}
               </button>
             </div>
             <div className="space-y-3">
@@ -2728,13 +2838,18 @@ export default function PrimeP1ToneConverter() {
                     onMouseDown={stageDrag.onMouseDown(i)}
                     onDragStart={stageDrag.onDragStart(i)}
                     onDragOver={stageDrag.onDragOver(i)}
-                    onDrop={stageDrag.onDrop(i)}
-                    style={{ background: c.panel, borderColor: c.border }}
-                    className="border rounded-md overflow-hidden"
+                    onDrop={stageDrag.onDrop}
+                    onDragEnd={stageDrag.onDragEnd}
+                    style={{
+                      background: c.panel,
+                      borderColor: c.border,
+                      opacity: stageDrag.draggingIndex === i ? 0.4 : 1,
+                    }}
+                    className="border rounded-md transition-opacity duration-150"
                   >
                     <div
                       draggable={false}
-                      className="flex items-center gap-2 px-4 py-2 border-b cursor-grab active:cursor-grabbing"
+                      className="flex items-center gap-2 px-4 py-2 border-b cursor-grab active:cursor-grabbing rounded-t-md"
                       style={{ background: c.panelAlt, borderColor: c.border }}
                     >
                       <GripVertical size={14} style={{ color: c.textFaint }} />

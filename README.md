@@ -14,16 +14,6 @@ Nothing here is scraped or reverse-engineered from a private API. It's built fro
 
 ---
 
-## Light and Dark mode UI
-
-![Dark mode start](DarkMode.png)
-![Light mode start](LightMode.png)
-
-## Example Conversion
-
-![dark mode example loaded](darkmodeExample.png)
-![light mode example loaded](lightModeExample.png)
-
 ## Features
 
 - **Searchable pedal-chain builder** for the Tonebridge side, with real per-category fields (0–10 sliders, ±12dB EQ bands, etc.) matching Tonebridge's actual UI.
@@ -31,27 +21,29 @@ Nothing here is scraped or reverse-engineered from a private API. It's built fro
 - **Real amp/cab/mic catalogs on both sides** — all Tonebridge amp models, cabinets, and mic models, and all Prime P1 amps and cabinets, sourced directly from each app's own screens.
 - **Fully editable Prime output** — change the matched model via dropdown (fields remap automatically, preserving values that exist in both), tweak any value, add a new effect to any stage, or remove any item.
 - **Edit-freezing** — once you manually edit an output value, it's marked "Edited" and won't be overwritten if you keep tweaking the Tonebridge input side. Untouched items keep re-syncing live.
-- **Drag-and-drop reordering** — reorder pedals in the input chain, and stages in the Prime output chain, without interfering with slider dragging (mousedown-drag on a slider/select/text field never gets hijacked into a card-reorder drag).
+- **Empty by default** — with no pedals in the Tonebridge chain, the Prime output is genuinely empty too (it no longer silently infers a default amp+cab before you've added anything to convert).
+- **Clear button** — resets both the Tonebridge chain and the Prime output back to empty in one click.
+- **Drag-and-drop reordering** — reorder pedals in the input chain, and stages in the Prime output chain. Dragging reorders live as you drag over other items (not just on drop), with opacity/transition feedback so it reads as a smooth reorder rather than a jump-cut. Mousedown-drag on a slider/select/text field never gets hijacked into a card-reorder drag.
+- **"Match my chain order" toggle** — Prime's stage order defaults to a fixed Dyna→OD→Amp→Cab→Mod→Delay→Reverb sequence, independent of how you actually arranged pedals in Tonebridge (within a stage, e.g. two Drive pedals, relative order is always preserved — but the macro stage sequence itself isn't auto-derived by default). Click to re-derive the Prime stage order from your actual Tonebridge chain instead; the button visibly toggles into "Revert chain order" so you can undo it back to whatever order you had before, in either direction.
 - **Click-to-type numeric entry** — click any value to type an exact number (Enter to commit, Escape to cancel), clamped to the valid range.
 - **Save / Load as JSON** — download the full state (Tonebridge chain, Prime output with per-item "modified" flags, guitar/pickup selection) and reload it later, preserving which output values you'd manually edited.
 - **Guitar/pickup EQ compensation** — Telecaster, Stratocaster, humbucker, semi-hollow, and Acoustic-Electric (piezo/magnetic soundhole/internal mic/blended), folded into the amp's EQ with a note describing what was applied.
-- **Match my chain order toggle.** — Used to match tonebridge pedal chain order, as that can change the sound.
 - **Light/dark theme toggle.**
 - **Honest, inline uncertainty flags** — every auto-computed value that's an approximation (rather than a confirmed real Prime field) says so in its note, right next to the value.
 
 ### What actually gets converted
 
-| Tonebridge stage                | Prime P1 stage                                                   | Notes                                                                                                                                                                    |
-| ------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Noise Gate                      | Dyna (NG)                                                        | Threshold only — Prime's NG has no Decay control                                                                                                                         |
-| Compressor                      | Dyna (Comp)                                                      | Threshold inverted from Sustain; Ratio has no equivalent, defaults to 50                                                                                                 |
-| Drive/Overdrive/Distortion/Fuzz | OD                                                               | Matched to a real Prime OD model via lineage when known                                                                                                                  |
-| Amp                             | Amp + Cab (+ Reverb if amp reverb > 0)                           | Amp matched by lineage/gain tier; cab auto-derived from the matched amp; Texture/Resonance folded into Presence/Bass since Prime has no dedicated knobs for them         |
-| Cabinet + Mic                   | _(info only)_                                                    | Prime's Cab stage has no mic modeling — shown for reference, doesn't carry over                                                                                          |
-| Modulation (12+ types)          | Mod                                                              | Each sub-type mapped to its real Prime field set                                                                                                                         |
-| Delay / Echo                    | Delay (+ Reverb if the pedal has a Space setting, e.g. Echology) | Feedback is a real editable field (some real pedals, like D-Delay, have one); reverb/delay combo pedals get split into two Prime items since Prime has no combined block |
-| Reverb (standalone)             | Reverb                                                           | Direct mapping                                                                                                                                                           |
-| Graphic EQ                      | _(folded into the Amp's EQ)_                                     | 10 bands folded into Bass/Mid/Treble/Presence deltas                                                                                                                     |
+| Tonebridge stage                | Prime P1 stage                                                   | Notes                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Noise Gate                      | Dyna (NG)                                                        | Threshold only — Prime's NG has no Decay control                                                                                                                                                                                                                                                                                      |
+| Compressor                      | Dyna (Comp)                                                      | Threshold inverted from Sustain; Ratio has no equivalent, defaults to 50                                                                                                                                                                                                                                                              |
+| Drive/Overdrive/Distortion/Fuzz | OD                                                               | Matched to a real Prime OD model via lineage when known                                                                                                                                                                                                                                                                               |
+| Amp                             | Amp + Cab (+ Reverb if amp reverb > 0)                           | Amp matched by lineage/gain tier; cab auto-derived from the matched amp; Texture/Resonance folded into Presence/Bass since Prime has no dedicated knobs for them                                                                                                                                                                      |
+| Cabinet + Mic                   | _(folded into the Cab item's note)_                              | Prime's Cab stage has no mic modeling. Rather than showing as its own separate card, your real Tonebridge cab + mic choice is appended to the note on whichever Prime Cab item was actually matched — so there's one Cab card, not two. Falls back to its own info-only card only if there's no amp/cab in the chain to attach it to. |
+| Modulation (12+ types)          | Mod                                                              | Each sub-type mapped to its real Prime field set                                                                                                                                                                                                                                                                                      |
+| Delay / Echo                    | Delay (+ Reverb if the pedal has a Space setting, e.g. Echology) | Feedback is a real editable field (some real pedals, like D-Delay, have one); reverb/delay combo pedals get split into two Prime items since Prime has no combined block                                                                                                                                                              |
+| Reverb (standalone)             | Reverb                                                           | Direct mapping                                                                                                                                                                                                                                                                                                                        |
+| Graphic EQ                      | _(folded into the Amp's EQ)_                                     | 10 bands folded into Bass/Mid/Treble/Presence deltas                                                                                                                                                                                                                                                                                  |
 
 ---
 
@@ -78,6 +70,8 @@ This matters because the tool will tell you which numbers to trust.
 - Reverb Pre Delay (no Tonebridge equivalent, defaults low).
 
 If you find a screenshot that resolves one of these, the fix points are: `DYNA_PRIME_TYPES`, `AMP_KEYWORD_MAP` / individual `lineage` fields in `PRIME_AMPS`/`TONEBRIDGE_AMPS`, and `mapModFields()`.
+
+> **A note on keyword specificity in `AMP_KEYWORD_MAP`:** matching is substring-based and first-match-wins, so broad brand keywords (e.g. `"peavey"`) can accidentally catch a specific model that deserves a different family — e.g. `"Peavey ValveKing"` (a mid-gain combo) was originally falling into the generic Peavey bucket alongside `"Peavey 5150-style"` (a high-gain metal family), giving it a completely wrong voicing. When adding a new Tonebridge amp with a lineage that shares a brand with an existing keyword, check whether it needs its own more-specific keyword listed _before_ the generic one, rather than trusting the generic bucket to fit.
 
 ---
 
@@ -172,12 +166,14 @@ Outputs a static site to `dist/`, deployable to any static host (Vercel, Netlify
 - A handful of Prime field names (NG's Decay, Vibrato/Stutter Mod fields) are still unconfirmed by screenshot.
 - No live audio preview — this tool converts _settings_, not sound; you'll still want to fine-tune by ear on the actual Prime P1.
 
+> **Layout gotcha for contributors:** the stage-column cards on the Prime output side used to have `overflow-hidden` (for rounded corners), which silently clipped the absolutely-positioned "Add to stage" dropdown, making it invisible. If you touch that card's styling, keep it `overflow-visible` (rounding is handled per-child instead) or any future popover inside it will have the same problem.
+
 ## Contributing
 
 Screenshots of any unconfirmed Prime P1 or Tonebridge parameter screen are the most useful contribution — they let real fields replace estimated ones. Open an issue or PR with the screenshot and which section of the data it resolves.
 
 ## License
 
-All product names, logos, and trademarks (Tonebridge, Ultimate Guitar, Mooer, Prime P1, and all referenced amp/pedal manufacturers) are property of their respective owners. This project is an independent, unofficial conversion tool and is not affiliated with or endorsed by any of them.
-
 Project provided as is.
+
+All product names, logos, and trademarks (Tonebridge, Ultimate Guitar, Mooer, Prime P1, and all referenced amp/pedal manufacturers) are property of their respective owners. This project is an independent, unofficial conversion tool and is not affiliated with or endorsed by any of them.
